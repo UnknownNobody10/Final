@@ -1,0 +1,202 @@
+"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>D3.js Radiation Simulation</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+  <style>
+    body { font-family: sans-serif; }
+    .tooltip {
+      position: absolute;
+      padding: 6px 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      font-size: 12px;
+      border-radius: 4px;
+      pointer-events: none;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+  <h2>D3.js Radiation Spread Simulation</h2>
+  <div id="viz"></div>
+  <div id="tooltip" class="tooltip" style="display: none;"></div>
+  <script>
+    const width = 960;
+    const height = 600;
+    const svg = d3.select("#viz").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    const tooltip = d3.select("#tooltip");
+
+    const materials = {
+      "Uranium-238": { halfLifeYears: 4468000000, color: "#e6194b" },
+      "Cesium-137": { halfLifeYears: 30.17, color: "#f032e6" }
+    };
+
+    let drops = [];
+    let timePassed = 0;
+
+    const projection = d3.geoAlbersUsa().translate([width/2, height/2]).scale(1000);
+    const path = d3.geoPath().projection(projection);
+
+    d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
+      svg.append("g")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.states).features)
+        .join("path")
+        .attr("fill", "#ccc")
+        .attr("stroke", "#333")
+        .attr("d", path);
+    });
+
+    svg.on("click", function(event) {
+      const [x, y] = d3.pointer(event);
+      drops.push({ x, y, r: 5, material: "Uranium-238", start: timePassed });
+      update();
+    });
+
+    function update() {
+      svg.selectAll("circle")
+        .data(drops)
+        .join("circle")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("r", d => d.r)
+        .attr("fill", d => materials[d.material].color)
+        .attr("fill-opacity", d => Math.pow(0.5, (timePassed - d.start) / materials[d.material].halfLifeYears))
+        .on("mousemove", function(event, d) {
+          tooltip.style("display", "block")
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY + 10) + "px")
+            .text(d.material + "\\nRadius: " + d.r.toFixed(1));
+        })
+        .on("mouseout", () => tooltip.style("display", "none"));
+    }
+
+    setInterval(() => {
+      timePassed += 10;
+      drops.forEach(d => d.r += 0.5);
+      update();
+    }, 200);
+  </script>
+</body>
+</html>
+"""
+
+# Save HTML file
+html_path = os.path.join(base_dir, "index.html")
+with open(html_path, "w") as f:
+    f.write(html_content)
+
+# Create ZIP
+zip_path = "/mnt/data/d3-js-visualization.zip"
+with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+    zipf.write(html_path, arcname="index.html")
+
+zip_path
+
+Analysis errored
+python
+Always show details
+
+Copy
+import os
+import zipfile
+
+# Directory paths
+base_dir = "/mnt/data/d3-js-visualization"
+os.makedirs(base_dir, exist_ok=True)
+
+# HTML file with embedded D3 script
+html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>D3.js Radiation Simulation</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://unpkg.com/topojson-client@3"></script>
+  <style>
+    body { font-family: sans-serif; }
+    .tooltip {
+      position: absolute;
+      padding: 6px 10px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      font-size: 12px;
+      border-radius: 4px;
+      pointer-events: none;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+<body>
+  <h2>D3.js Radiation Spread Simulation</h2>
+  <div id="viz"></div>
+  <div id="tooltip" class="tooltip" style="display: none;"></div>
+  <script>
+    const width = 960;
+    const height = 600;
+    const svg = d3.select("#viz").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    const tooltip = d3.select("#tooltip");
+
+    const materials = {
+      "Uranium-238": { halfLifeYears: 4468000000, color: "#e6194b" },
+      "Cesium-137": { halfLifeYears: 30.17, color: "#f032e6" }
+    };
+
+    let drops = [];
+    let timePassed = 0;
+
+    const projection = d3.geoAlbersUsa().translate([width/2, height/2]).scale(1000);
+    const path = d3.geoPath().projection(projection);
+
+    d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us => {
+      svg.append("g")
+        .selectAll("path")
+        .data(topojson.feature(us, us.objects.states).features)
+        .join("path")
+        .attr("fill", "#ccc")
+        .attr("stroke", "#333")
+        .attr("d", path);
+    });
+
+    svg.on("click", function(event) {
+      const [x, y] = d3.pointer(event);
+      drops.push({ x, y, r: 5, material: "Uranium-238", start: timePassed });
+      update();
+    });
+
+    function update() {
+      svg.selectAll("circle")
+        .data(drops)
+        .join("circle")
+        .attr("cx", d => d.x)
+        .attr("cy", d => d.y)
+        .attr("r", d => d.r)
+        .attr("fill", d => materials[d.material].color)
+        .attr("fill-opacity", d => Math.pow(0.5, (timePassed - d.start) / materials[d.material].halfLifeYears))
+        .on("mousemove", function(event, d) {
+          tooltip.style("display", "block")
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY + 10) + "px")
+            .text(d.material + "\\nRadius: " + d.r.toFixed(1));
+        })
+        .on("mouseout", () => tooltip.style("display", "none"));
+    }
+
+    setInterval(() => {
+      timePassed += 10;
+      drops.forEach(d => d.r += 0.5);
+      update();
+    }, 200);
+  </script>
+</body>
+</html>
+"""
